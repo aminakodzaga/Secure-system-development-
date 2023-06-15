@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> OTP Authentication </title>
+    <link rel="stylesheet" href="style.css">
+<body>
+  <div class="wrapper">
+    <h2>OTP Authentication</h2>
+    <form id="otpForm">
+      <div>
+        <div id="qrcode"></div>
+      </div>      
+      <div class="input-box">
+        <input type="text" name="code" id="code" placeholder="Enter code">
+      </div>
+      <div class="error-message" id="errorMessage"></div>
+      <div class="input-box button">
+        <input type="submit" value="Verify">
+      </div>
+    </form>
+    
+  </div>
+
+  <style>
+    .error-message {
+  color: red;
+  font-size: 14px;
+  margin-bottom: 3px;
+  text-align: center;
+}
+
+  </style>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.1/dist/qrcode.min.js"></script>
+  <script>
+    // Generate and display the QR code
+    $(document).ready(function() {
+      $.ajax({
+        url: '../api/otp.php',
+        method: 'POST',
+        success: function(response) {
+          var secret = response.secret;
+          var qrCodeUrl = response.qrCodeUrl;
+
+          var qrCodeContainer = document.getElementById('qrcode');
+          var qrCodeImg = document.createElement('img');
+          qrCodeImg.src = qrCodeUrl;
+          qrCodeContainer.appendChild(qrCodeImg);
+
+          // Attach submit event handler to the form
+          $('#otpForm').submit(function(event) {
+            event.preventDefault();
+
+            var code = $('#code').val();
+
+            if (code.trim() === '') {
+              $('#errorMessage').text('Please enter the verification code.');
+              return;
+            }
+
+            // Make AJAX request to validate the code
+            $.ajax({
+              url: '../api/otp.php',
+              method: 'POST',
+              data: {
+                secret: secret,
+                code: code
+              },
+              success: function(response) {
+                var isValid = response.isValid;
+                if (isValid) {
+                  $('#errorMessage').text('OTP is valid');
+                } else {
+                  $('#errorMessage').text('OTP is invalid');
+                }
+              },
+              error: function() {
+                $('#errorMessage').text('An error occurred while verifying the OTP.');
+              }
+            });
+          });
+        },
+        error: function() {
+          $('#errorMessage').text('An error occurred while generating the QR code.');
+        }
+      });
+    });
+  </script>
+
+
+</body>
+
+</html>
+

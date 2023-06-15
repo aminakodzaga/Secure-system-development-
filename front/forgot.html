@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Forgot Password Form </title>
+    <link rel="stylesheet" href="style.css">
+   </head>
+<body>
+  <div class="wrapper">
+    <h2>Forgot password</h2>
+    <form action="../api/phpmailer.php" method="POST" onsubmit="return validateForm()">
+        <div class="input-box">
+          <input type="text" name="email" id="email" placeholder="Enter your email">
+        </div>
+        <div class="error-message" id="errorMessage"></div>
+        <div class="input-box button">
+          <input type="submit" value="Reset Password">
+        </div>
+        <div class="text">
+          <h3><a href="login.html">Go back to login</a></h3>
+        </div>
+      </form>
+  </div>
+
+  <style>
+    .error-message {
+  color: red;
+  font-size: 14px;
+  margin-bottom: 3px;
+  text-align: center;
+}
+
+  </style>
+
+<script>
+    function validateForm() {
+      document.getElementById("errorMessage").textContent = "";
+  
+      var email = document.getElementById("email").value;
+  
+      var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (email.trim() === "" || !emailPattern.test(email)) {
+        document.getElementById("errorMessage").textContent = "Please enter a valid email address.";
+        return false;
+      }  
+
+      //dodati isto kao iz registera 
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", "../api/validateEmail.php?email=" + email, false);
+      xhr.send();
+      if (xhr.status === 200) {
+        if (xhr.responseText !== "ok") {
+          document.getElementById("errorMessage").textContent = xhr.responseText;
+          return false;
+        }
+      } else {
+          document.getElementById("errorMessage").textContent = "Error occurred during email validation.";
+          return false;
+        } 
+      return true;
+    }
+  </script>
+
+</body>
+</html>

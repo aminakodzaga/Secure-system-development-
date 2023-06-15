@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Home page </title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+
+   </head>
+<body>
+  <div class="wrapper">
+    <h2>Home page</h2>
+    <form action="#" method="POST" onsubmit="return editProfile();">
+        <div>
+          <div id="phone_number"></div>
+        </div>      
+        <div class="input-box button">
+          <input type="submit" value="Edit Profile">
+        </div>
+      </form>
+      <div class="input-box button">
+        <input type="submit" onclick="UserService.logout();" value="Logout">
+      </div>
+      
+  </div>
+
+  <style>
+    .error-message {
+  color: red;
+  font-size: 14px;
+  margin-bottom: 3px;
+  text-align: center;
+}
+
+  </style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.2/js/bootstrap.bundle.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+  <script src="user-service.js"></script>
+
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const phoneNumber = urlParams.get('phone');
+  
+    const phoneNumberDiv = document.getElementById('phone_number');
+    phoneNumberDiv.textContent = "Phone Number: " + phoneNumber;
+  
+    function editProfile() {
+      var formData = new FormData();
+      formData.append("phone", phoneNumber);
+  
+      var queryString = new URLSearchParams(formData).toString();
+      var redirectUrl = "../api/profile.php?" + queryString;
+      window.location.href = redirectUrl;
+      return false; // Prevent form submission
+    }
+  </script>
+
+</body>
+
+<script>
+  var token = localStorage.getItem("token");
+    if (!token){
+      window.location.replace("login.html");
+    }
+</script>
+</html>

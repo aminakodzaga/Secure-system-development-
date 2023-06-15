@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Registration Form </title>
+    <link rel="stylesheet" href="style.css">
+   </head>
+<body>
+  <div class="wrapper">
+    <h2>Registration</h2>
+    <form id="registerForm" method="POST" onsubmit="return validateForm()">
+      <div class="input-box">
+        <input type="text" name="name" id="name" placeholder="Enter your full name" >
+      </div>
+      <div class="input-box">
+        <input type="text" name="username" id="username" placeholder="Enter your username" >
+      </div>
+      <div class="input-box">
+        <input type="text" name="email" id="email" placeholder="Enter your email" >
+      </div>
+      <div class="input-box">
+        <input type="tel" name="phone" id="phone" placeholder="Enter your phone" >
+      </div>
+      <div class="input-box">
+        <input type="password" name="password" id="password" placeholder="Create password" >
+      </div>
+      <div class="input-box">
+        <input type="password" name="password_conf" id="password_conf" placeholder="Confirm password" >
+      </div>
+      <div class="policy">
+        <div class="text">
+          <input type="radio" id="smsOption" name="verificationMethod" value="sms" >
+          <label for="smsOption"><h3>SMS</h3></label>
+        </div>
+        <div class="text">
+          <input type="radio" id="otpOption" name="verificationMethod" value="otp" >
+          <label for="otpOption"><h3>OTP</h3></label>
+        </div>        
+      </div>
+      <div class="error-message" id="errorMessage"></div>
+      <div class="input-box button">
+        <input type="submit" value="Register Now">
+      </div>
+      <div class="text">
+        <h3>Already have an account? <a href="login.html">Login now</a></h3>
+      </div>
+    </form>
+  </div>
+  <style>
+    .error-message {
+  color: red;
+  font-size: 14px;
+  margin-bottom: 3px;
+  text-align: center;
+}
+  </style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.2/js/bootstrap.bundle.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+
+
+  <script>
+    function validateForm() {
+      document.getElementById("errorMessage").textContent = "";
+
+      var name = document.getElementById("name").value;
+      var username = document.getElementById("username").value;
+      var email = document.getElementById("email").value;
+      var phone = document.getElementById("phone").value;
+      var password = document.getElementById("password").value;
+      var password_conf = document.getElementById("password_conf").value;
+
+      // Perform form validation as before
+      if (name.trim() === "") {
+        document.getElementById("errorMessage").textContent = "Please enter your full name.";
+        return false;
+      }
+  
+      var usernamePattern = /^[a-zA-Z0-9]+$/;
+      if (username.trim() === "" || username.includes(" ") || !usernamePattern.test(username)) {
+        document.getElementById("errorMessage").textContent = "Please enter a valid username (alphanumeric characters only, no spaces).";
+        return false;
+      }
+      if (username.length <= 3) {
+        document.getElementById("errorMessage").textContent = "Username must have more than 3 characters.";
+        return false;
+      }
+  
+      var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailPattern.test(email)) {
+        document.getElementById("errorMessage").textContent = "Invalid email format.";
+        return false;
+      }
+      var domain = email.substring(email.lastIndexOf("@") + 1);
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", "../api/validateEmail.php?email=" + email, false);
+      xhr.send();
+      if (xhr.status === 200) {
+        if (xhr.responseText !== "ok") {
+        document.getElementById("errorMessage").textContent = xhr.responseText;
+        return false;
+      }
+    } else {
+      document.getElementById("errorMessage").textContent = "Error occurred during email validation.";
+      return false;
+    } 
+  
+      if (phone.trim() === "") {
+        document.getElementById("errorMessage").textContent = "Please enter your phone number.";
+        return false;
+      }
+
+      var phoneXhr = new XMLHttpRequest();
+      phoneXhr.open("GET", "../api/validatePhone.php?phone=" + phone, false);
+      phoneXhr.send();
+      if (phoneXhr.status !== 200) {
+        document.getElementById("errorMessage").textContent = "Error occurred during password validation.";
+        return false;
+      }
+      if (phoneXhr.responseText.trim() !== "1") {
+        document.getElementById("errorMessage").textContent = "Please enter valid phone number.";
+        return false;
+      }
+  
+      if (password.trim() === "") {
+        document.getElementById("errorMessage").textContent = "Please create a password.";
+        return false;
+      }
+      if (password.length <= 8) {
+        document.getElementById("errorMessage").textContent = "Password must have more than 8 characters.";
+        return false;
+      }
+  
+      if (password_conf.trim() === "") {
+        document.getElementById("errorMessage").textContent = "Please confirm your password.";
+        return false;
+      }
+  
+      if (password !== password_conf) {
+        document.getElementById("errorMessage").textContent = "Passwords do not match.";
+        return false;
+      }
+      var passXhr = new XMLHttpRequest();
+      passXhr.open("GET", "../api/validatePassword.php?password=" + password, false);
+      passXhr.send();
+      if (passXhr.status !== 200) {
+        document.getElementById("errorMessage").textContent = "Error occurred during password validation.";
+        return false;
+      }
+      if (passXhr.responseText.trim() !== "valid") {
+        document.getElementById("errorMessage").textContent = "Weak password. Please choose a stronger password.";
+        return false;
+      }
+
+    if (!smsOption.checked && !otpOption.checked) {
+      document.getElementById("errorMessage").textContent = "Please select an option for Two-Factor Authentication.";
+      return false;
+    }
+
+    if (otpOption.checked) {
+      var formData = {
+        username: username,
+        fullName: name,
+        email: email,
+        phoneNumber: phone,
+        password: password,
+        password_conf: password_conf,
+        mfa: "otp"
+      };
+
+      // AJAX request to transmit form data to the server and redirect to 2fa.html
+      $.ajax({
+        url: "../api/register",
+        type: "POST",
+        data: JSON.stringify(formData),
+        contentType: "application/json",
+        dataType: "json",
+        success: function(response) {
+          var redirectUrl = "2fa.html";
+          window.location.href = redirectUrl;
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          var errorMessage;
+          if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
+            errorMessage = jqXHR.responseJSON.message;
+          } else {
+            errorMessage = "An error occurred.";
+          }
+          $('#errorMessage').text(errorMessage);
+        }
+      });
+
+      return false; // Prevent form submission
+    }
+
+    if (smsOption.checked) {
+      var formData = {
+        username: username,
+        fullName: name,
+        email: email,
+        phoneNumber: phone,
+        password: password,
+        password_conf: password_conf,
+        mfa: "sms"
+      };
+
+      var queryString = new URLSearchParams(formData).toString();
+      var redirectUrl = "send-sms.html?" + queryString;
+      window.location.href = redirectUrl;
+      
+      return false; // Prevent form submission
+    }
+
+    return true;
+  }
+
+  </script>
+
+<script>
+  var token = localStorage.getItem("token");
+    if (token){
+      window.location.replace("home.html");
+    }
+</script>
+</body>
+</html>

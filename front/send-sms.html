@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Send SMS </title>
+    <link rel="stylesheet" href="style.css">
+<body>
+  <div class="wrapper">
+    <h2>Send SMS</h2>
+    <form action="#" method="POST" onsubmit="return sendSMS();">
+        <div>
+          <div id="phone_number"></div>
+        </div>      
+        <div class="input-box button">
+          <input type="submit" value="Send SMS">
+        </div>
+      </form>
+      
+    
+  </div>
+
+  <style>
+    .error-message {
+  color: red;
+  font-size: 14px;
+  margin-bottom: 3px;
+  text-align: center;
+}
+
+  </style>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    var formData = Object.fromEntries(urlParams.entries());
+    console.log(formData);
+    const phoneNumber = urlParams.get('phoneNumber');
+    
+    function randomCode() {
+      return Math.floor(Math.random() * 900000) + 100000;
+    }
+    const generatedCode = randomCode();
+    
+    var code = 'code';
+    formData[code] = generatedCode;
+
+    const phoneNumberDiv = document.getElementById('phone_number');
+    phoneNumberDiv.textContent = "Phone Number: " + phoneNumber;
+  
+    function sendSMS() {
+      var queryString = new URLSearchParams(formData).toString();
+      var redirectUrl = "../api/sms.php?" + queryString;
+      window.location.href = redirectUrl;
+      return false; // Prevent form submission
+    }
+  </script>
+  
+
+
+</body>
+
+</html>
+
